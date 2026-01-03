@@ -105,7 +105,7 @@ Collected errors:
 
 sing-box用的是tun模式，所以还需要修改一下防火墙配置，让局域网的流量能够转发到tun里。
 
-1. /etc/config/network里添加singbox接口
+1. `/etc/config/network`里添加singbox接口
 ```
 config interface 'singbox'
         option device 'singbox'
@@ -115,7 +115,7 @@ config interface 'singbox'
         option netmask '255.255.255.252'
 ```
 
-2. /etc/config/firewall lan zone里添加singbox
+2. `/etc/config/firewall` lan zone里添加singbox
 ```
 config zone
         option name 'lan'
@@ -129,9 +129,78 @@ config zone
         option masq '0'
 ```
 
+3. sing-box配置
+
+```
+"inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun",
+      "interface_name": "singbox",
+      "address": [
+        "172.18.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "mtu": 1480,
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "gvisor"
+    }
+]
+```
+
 写好配置以后，sing-box启动！
 
 `service sing-box start`
 
 ## zerotier
 
+按照sing-box部分安装配置即可。  
+
+可以先启动一下zerotier，让它自己生成secret，再去编辑`/etc/config/zerotier`。配置文件按照openwrt[官方文档](https://openwrt.org/docs/guide-user/services/vpn/zerotier)编辑即可。  
+
+还需要添加一下防火墙规则：  
+
+1. `/etc/config/network`
+
+```
+config interface 'zt'
+        option device 'ztXXXXXXXX'
+        option proto 'static'
+        option ipaddr 'X.X.X.X'
+        option netmask 'X.X.X.X'
+        option type 'bridge'
+        list ip6addr 'X:X:X:X:X:X:X:X/X'
+        list ip6addr 'X:X:X:X:X:X:X:X/X'
+
+```
+
+2. `/etc/config/firewall`
+
+```
+config zone
+        option name 'lan'
+        ...
+        list network 'zt'
+        ...
+
+
+config zone
+        option name 'zerotier'
+        list network 'zt'
+        option input 'ACCEPT'
+        option output 'ACCEPT'
+        option forward 'ACCEPT'
+        option masq '1'
+
+```
+
+配置好以后应该可以看到zt的接口和路由了（如果有配置的话）。  
+
+## 总结
+
+总体来说，虽然U60Pro用的是定制版openwrt，但是由于它是openwrt，可玩性其实还是蛮高的，随便折腾一下也可以。  
+
+之后如果有时间的话，会研究一下屏幕是怎么控制的（现在看起来是`zte_topsw_devui`程序直接打framebuffer，但是具体还没分析）
+
+叠个甲：本文仅供学习参考，所有涉及所属权的商标、软件均归属各厂商及个人。本人进行逆向分析的行为仅限于个人学习、安全研究或互操作性目的,不得用于任何非法用途，包括但不限于绕过软件授权机制、制作盗版、窃取商业秘密或损害原软件开发者合法权益。本成果按“现状”提供，不附带任何形式的明示或暗示担保。使用者因使用本成果而引发的任何直接或间接损失（包括法律纠纷、数据损坏、业务中断等），本人概不负责。  
