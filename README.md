@@ -36,7 +36,7 @@ done
 
 首先当然是我们的ssh：
 
-`opkg update`
+`opkg update`  
 `opkg install openssh-server openssh-sftp-server vsftpd`
 
 然后使用openwrt service（类似systemd）来启动ssh服务器：
@@ -70,7 +70,7 @@ A: 你好有的，只不过实现方式比较ugly o.o
 
 `(sleep 10; /bin/sh /data/init.sh > /tmp/mount.log 2>&1) &`
 
-然后记得把`enable_debugging里`的`pasword`改成自己的密码（懒得去找具体执行的命令了所以直接用了网页开启adb的方法，不过这样好像会有安全隐患，毕竟拿到设备adb shell就可以把密码拿出来，不过一般人也不会想着干这种事吧大概）  
+然后记得把`enable_debugging.sh`里的`pasword`改成自己的密码（懒得去找具体执行的命令了所以直接用了网页开启adb的方法，不过这样好像会有安全隐患，毕竟拿到设备adb shell就可以把密码拿出来，不过一般人也不会想着干这种事吧大概）  
 
 ## 一些注意事项  
 
@@ -78,7 +78,7 @@ A: 你好有的，只不过实现方式比较ugly o.o
 
 `distfeed.conf`里自带了sdk里膏通和zte私有分类的软件包，所以第一次执行的时候失败是正常的，需要去`distfeed.conf`里删掉`openwrt_qti*`和`openwrt_zte_apps`的。而且因为它是x75，官方openwrt没有提供x75的target支持，所以也要把`core`删除。
 
-修改完以后你会发现好像有些依赖kmod的软件包也装不了：  
+安装软件包的时候，你会发现好像有些依赖kmod的软件包也装不了：  
 
 ```
 root@OpenWrt:~# opkg install zerotier
@@ -87,10 +87,11 @@ Collected errors:
  * pkg_hash_check_unresolved: cannot find dependency kmod-tun for zerotier
  * pkg_hash_fetch_best_installation_candidate: Packages for zerotier found, but incompatible with the architectures configured
  * opkg_install_cmd: Cannot install package zerotier.
-
 ```  
 
-因为没有core的相关源，但是添加了也没用（因为不是官方的内核），所以需要我们手动安装某些软件包。把opkg的ipk解压，再把data.tar.gz解压到根目录里就可以了。
+因为没有core的相关源，但是添加了也没用（因为不是官方的内核），所以需要我们手动安装某些软件包。把opkg的ipk解压，再把data.tar.gz解压到根目录里就可以了。  
+
+命令是`tar -zxvf xxx.ipk` 和 `tar -zxvf data.tar.gz -C /` 
 
 ## sing-box
 
@@ -204,3 +205,4 @@ config zone
 之后如果有时间的话，会研究一下屏幕是怎么控制的（现在看起来是`zte_topsw_devui`程序直接打framebuffer，但是具体还没分析）
 
 叠个甲：本文仅供学习参考，所有涉及所属权的商标、软件均归属各厂商及个人。本人进行逆向分析的行为仅限于个人学习、安全研究或互操作性目的,不得用于任何非法用途，包括但不限于绕过软件授权机制、制作盗版、窃取商业秘密或损害原软件开发者合法权益。本成果按“现状”提供，不附带任何形式的明示或暗示担保。使用者因使用本成果而引发的任何直接或间接损失（包括法律纠纷、数据损坏、业务中断等），本人概不负责。  
+
