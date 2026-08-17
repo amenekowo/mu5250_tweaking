@@ -1,0 +1,6 @@
+.DS_Store
+playground/
+files/qpic_demo/qpic_drm_demo
+files/qpic_demo/dockcross-arm64-musl
+files/qpic_demo/aarch64-linux-musl-cross
+files/qpic_demo/aarch64-linux-musl-cross.tgz
